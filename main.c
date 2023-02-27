@@ -7,8 +7,9 @@
 
 char* encryption(char mode, long shift, FILE* input) {
     // setup
-    char* buffer;
-    // printf("%ld\n",strlen(buffer));
+    // initSize is arbitrary
+    const int initSize = 200;
+    static char buffer[initSize] = "";
     unsigned long filesize;
 
     // get size of file, create message buffer
@@ -16,77 +17,79 @@ char* encryption(char mode, long shift, FILE* input) {
         fseek(input, 0, SEEK_END);
         filesize = ftell(input);
         // buffer = malloc(filesize);
+        realloc(&buffer, filesize);
         fseek(input, 0, SEEK_SET);
 
         fread(buffer, 1, filesize ,input);
     }
     else {
         printf("No input file given, enter message: ");
-        scanf("%s", buffer);
+        fgets(buffer, initSize, stdin);
         filesize = strlen(buffer);
     }
-    // char* content[filesize] = buffer;
-    int x = 30;
-    char* content[x];
-    if (filesize > x) {
-        content[filesize];
+
+    // resizing
+    char* newBuffer;
+    if (filesize > initSize) {
+        newBuffer = realloc(&buffer, filesize);
     }
-    printf("%ld\n", strlen(*content));
 
     // shift file contents
     for (long i = 0; i < filesize; i++) {
+        // cast as long to prevent overflow while shifting
+        long c = (long) buffer[i];
         if (mode == 'e') {
             // uppercase: 65 to 90
-            if (buffer[i] > 64 && buffer[i] < 91) {
-                buffer[i] += (shift % 26);
-                if (buffer[i] >= 91) {
-                    buffer[i] -= 26;
+            if (c > 64 && c < 91) {
+                c += (shift % 26);
+                if (c >= 91) {
+                    c -= 26;
                 }
-                else if (buffer[i] <= 64) {
-                    buffer[i] += 26;
+                else if (c <= 64) {
+                    c += 26;
                 }
             }
             // lowercase: 97 to 122
-            else if (buffer[i] > 96 && buffer[i] < 123) {
-                buffer[i] += (shift % 26);
-                if (buffer[i] >= 123) {
-                    buffer[i] -= 26;
+            else if (c > 96 && c < 123) {
+                c += (shift % 26);
+                if (c >= 123) {
+                    c -= 26;
                 }
-                else if (buffer[i] <= 96) {
-                    buffer[i] += 26;
+                else if (c <= 96) {
+                    c += 26;
                 }
             }
         }
         else if (mode == 'd') {
             // uppercase: 65 to 90
-            if (buffer[i] > 64 && buffer[i] < 91) {
-                buffer[i] -= (shift % 26);
-                if (buffer[i] >= 91) {
-                    buffer[i] -= 26;
+            if (c > 64 && c < 91) {
+                c -= (shift % 26);
+                if (c >= 91) {
+                    c -= 26;
                 }
-                else if (buffer[i] <= 64) {
-                    buffer[i] += 26;
+                else if (c <= 64) {
+                    c += 26;
                 }
             }
             // lowercase: 97 to 122
-            else if (buffer[i] > 96 && buffer[i] < 123) {
-                buffer[i] -= (shift % 26);
-                if (buffer[i] >= 123) {
-                    buffer[i] -= 26;
+            else if (c > 96 && c < 123) {
+                c -= (shift % 26);
+                if (c >= 123) {
+                    c -= 26;
                 }
-                else if (buffer[i] <= 96) {
-                    buffer[i] += 26;
+                else if (c <= 96) {
+                    c += 26;
                 }
             }
         }
-        printf("%c\n", buffer[i]);
+        buffer[i] = (char) c;
     }
     return buffer;
 }
 
 // for every alphabetical char in the message, shift by n positions (circular)
+// argv[1] is -e / -d, argv[2] is key, argv[3] is input file
 int main(int argc, char* argv[]) {
-    // argv[1] is -e / -d, argv[2] is key, argv[3] is input file
 
     // setup
     char mode = 'e';
@@ -110,4 +113,5 @@ int main(int argc, char* argv[]) {
         }
     }
     printf("Encryption: %s", encryption(mode, shift, input));
+    return 0;
 }
