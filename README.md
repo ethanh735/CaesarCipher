@@ -11,4 +11,5 @@ To use:
 
 Behaviors:
 - All the flags can be either present or absent: each has a default behavior if a flag is unspecified.
-- The shift amount cannot be 0: entering a flag of 0 will make the shift amount the default value of 7.
+- The shift amount cannot be 0: entering a flag of 0 will make the shift amount the default value of 7. A shift of 26 is effectively a shift of 0 though.
+- There's a very tough tradeoff between the behaviors of pointers and arrays in C for input handling: these seem inherent to the language, and things like the inability for input container resizing is something that the cipher will likely have to live with due to the design decisions of the language.
