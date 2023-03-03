@@ -7,31 +7,26 @@
 
 char* encryption(char mode, long shift, FILE* input) {
     // setup
-    // initSize is arbitrary
-    const int initSize = 200;
-    static char buffer[initSize] = "";
+    // size is max ushort size
+    int size = 65535;
+    char* buffer = malloc(size);
     unsigned long filesize;
 
     // get size of file, create message buffer
     if (input != stdin) {
         fseek(input, 0, SEEK_END);
         filesize = ftell(input);
-        // buffer = malloc(filesize);
-        realloc(&buffer, filesize);
         fseek(input, 0, SEEK_SET);
 
         fread(buffer, 1, filesize ,input);
     }
     else {
-        printf("No input file given, enter message: ");
-        fgets(buffer, initSize, stdin);
-        filesize = strlen(buffer);
-    }
-
-    // resizing
-    char* newBuffer;
-    if (filesize > initSize) {
-        newBuffer = realloc(&buffer, filesize);
+        do {
+            printf("No input file given, enter message: ");
+            fgets(buffer, size, stdin);
+            filesize = strlen(buffer);
+        }
+        while (filesize >= size - 1);
     }
 
     // shift file contents
@@ -112,6 +107,6 @@ int main(int argc, char* argv[]) {
             input = fopen(argv[i], "r");
         }
     }
-    printf("Encryption: %s", encryption(mode, shift, input));
+    printf("Encryption:\n%s", encryption(mode, shift, input));
     return 0;
 }
